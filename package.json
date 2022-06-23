@@ -1,0 +1,25 @@
+{
+  "name": "jpy-mmk-rate-reporter",
+  "version": "0.1.0",
+  "description": "watch jpy-mmk exchange rate and report to discord server",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsc && node ./dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KaungWai/jpy-mmk-rate-reporter.git"
+  },
+  "author": "kaungwai",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/KaungWai/jpy-mmk-rate-reporter/issues"
+  },
+  "homepage": "https://github.com/KaungWai/jpy-mmk-rate-reporter#readme",
+  "dependencies": {
+    "dotenv": "^16.0.1",
+    "got": "^11",
+    "typescript": "^4.7.4",
+    "xml-js": "^1.6.11"
+  }
+}
