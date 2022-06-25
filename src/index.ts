@@ -7,7 +7,8 @@ import {
 	GetWebHookOneDecimal_ENV, 
 	GetWebHookTwoDecimal_ENV, 
 	GetWebHookThreeDecimal_ENV, 
-	GetWebHookSystemException_ENV 
+	GetWebHookSystemException_ENV, 
+	GetCronSchedule_ENV
 } from './lib/env'
 import { 
 	GetWebpageSource, 
@@ -31,6 +32,7 @@ const RateWebhooks: RateWebhookStructure = {
 	two_decimal_url: GetWebHookTwoDecimal_ENV(),
 	three_decimal_url: GetWebHookThreeDecimal_ENV()
 }
+const Schedule = GetCronSchedule_ENV()
 
 // main process
 function Main() {
@@ -104,7 +106,7 @@ function Main() {
 	})
 }
 
-cron.schedule('* * * * *', () => {
+cron.schedule(Schedule, () => {
 	Main()
 	const Now = new Date()
 	console.log(`Exchange rate reporter executed in ${Now.toLocaleDateString()} ${Now.toLocaleTimeString()}`)

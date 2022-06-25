@@ -25,3 +25,7 @@ export function GetWebHookThreeDecimal_ENV(): string {
 export function GetWebHookSystemException_ENV(): string {
     return <string>process.env.WEBHOOK_SYSTEM_EXCEPTION_URL
 }
+
+export function GetCronSchedule_ENV(): string {
+    return <string>process.env.NODE_CRON_SCHEDULE
+}
