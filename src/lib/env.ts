@@ -14,6 +14,14 @@ export function GetWebHookOneDecimal_ENV(): string {
     return <string>process.env.WEBHOOK_ONE_DECIMAL_URL
 }
 
-export function GetWebHookTwo_ENV(): string {
+export function GetWebHookTwoDecimal_ENV(): string {
     return <string>process.env.WEBHOOK_TWO_DECIMAL_URL
+}
+
+export function GetWebHookThreeDecimal_ENV(): string {
+    return <string>process.env.WEBHOOK_THREE_DECIMAL_URL
+}
+
+export function GetWebHookSystemException_ENV(): string {
+    return <string>process.env.WEBHOOK_SYSTEM_EXCEPTION_URL
 }

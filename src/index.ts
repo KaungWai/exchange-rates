@@ -1,30 +1,59 @@
+var cron = require('node-cron')
 import dotenv from 'dotenv'
-import { GetWebURL_ENV, GetHistoryFilePath_ENV, GetWebHookWhole_ENV, GetWebHookOneDecimal_ENV, GetWebHookTwo_ENV } from './lib/env'
-import { GetWebpageSource, ConvertTOJSON, GetPreviousExchangeRate, GetUpToNthDecimal, CheckAndReport, SaveCurrentExchangeRate } from './lib/functions'
-import { HistoryStructure, WebhookStructure } from "./types"
+import { 
+	GetWebURL_ENV, 
+	GetHistoryFilePath_ENV, 
+	GetWebHookWhole_ENV, 
+	GetWebHookOneDecimal_ENV, 
+	GetWebHookTwoDecimal_ENV, 
+	GetWebHookThreeDecimal_ENV, 
+	GetWebHookSystemException_ENV 
+} from './lib/env'
+import { 
+	GetWebpageSource, 
+	ConvertTOJSON, 
+	GetPreviousExchangeRate, 
+	GetUpToNthDecimal, 
+	CheckAndReport, 
+	SaveCurrentExchangeRate, 
+	ReportSystemException
+} from './lib/functions'
+import { RateHistoryStructure, RateWebhookStructure } from "./lib/types"
 
+// environment variables
 dotenv.config()
-
 const WebURL = GetWebURL_ENV()
 const HistroyFilePath = GetHistoryFilePath_ENV()
-const Webhooks: WebhookStructure = {
+const ExceptionWebhook = GetWebHookSystemException_ENV()
+const RateWebhooks: RateWebhookStructure = {
 	whole_url: GetWebHookWhole_ENV(),
 	one_decimal_url: GetWebHookOneDecimal_ENV(),
-	two_decimal_url: GetWebHookTwo_ENV()
+	two_decimal_url: GetWebHookTwoDecimal_ENV(),
+	three_decimal_url: GetWebHookThreeDecimal_ENV()
 }
 
+// main process
 function Main() {
+
+	// scraping the data provider web page
 	GetWebpageSource(WebURL).then(Source => {
+
+		// open and close tags
 		const RateTableOpenTag = '<table class="rate_table">'
 		const RateTableCloseTag = '</table>'
+
+		// extract the exchange rate table
 		const RateTableSource = Source.substring(
 			Source.lastIndexOf(RateTableOpenTag),
 			Source.lastIndexOf(RateTableCloseTag) + RateTableCloseTag.length
 		)
+
+		// convert html table to json object
 		const RateTableObject = ConvertTOJSON(RateTableSource)
 
 		let OneJPY = ""
 
+		// find JPY to MMK row
 		for (let i = 0; i < RateTableObject.table.tr.length; i++) {
 			const Record = RateTableObject.table.tr[i]
 			if (Record.td) {
@@ -35,13 +64,16 @@ function Main() {
 			}
 		}
 
+		// in case of JPY to MMK no longer support
 		if (OneJPY == "") {
 			throw new Error("MMK rate not found.")
 		}
 
-		const PreviousRate: HistoryStructure = GetPreviousExchangeRate(HistroyFilePath)
+		// get the last saved exchange rate
+		const PreviousRate: RateHistoryStructure = GetPreviousExchangeRate(HistroyFilePath)
 
-		const CurrentRate: HistoryStructure = {
+		// current exchange rate
+		const CurrentRate: RateHistoryStructure = {
 			whole: GetUpToNthDecimal(OneJPY, 0),
 			one_decimal: GetUpToNthDecimal(OneJPY, 1),
 			two_decimal: GetUpToNthDecimal(OneJPY, 2),
@@ -51,14 +83,29 @@ function Main() {
 			six_decimal: GetUpToNthDecimal(OneJPY, 6)
 		}
 
-		CheckAndReport(PreviousRate.whole, CurrentRate.whole, Webhooks.whole_url, 0)
-		CheckAndReport(PreviousRate.one_decimal, CurrentRate.one_decimal, Webhooks.one_decimal_url, 1)
-		CheckAndReport(PreviousRate.two_decimal, CurrentRate.two_decimal, Webhooks.two_decimal_url, 2)
+		// reprot the rate change of whole number
+		CheckAndReport(CurrentRate.six_decimal, PreviousRate.whole, CurrentRate.whole, RateWebhooks.whole_url)
 
+		// report the rate change up to one decimal place
+		CheckAndReport(CurrentRate.six_decimal, PreviousRate.one_decimal, CurrentRate.one_decimal, RateWebhooks.one_decimal_url)
+
+		// report the rate change up to two decimal places
+		CheckAndReport(CurrentRate.six_decimal, PreviousRate.two_decimal, CurrentRate.two_decimal, RateWebhooks.two_decimal_url)
+
+		// report the rate change up to three decimal places
+		CheckAndReport(CurrentRate.six_decimal, PreviousRate.three_decimal, CurrentRate.three_decimal, RateWebhooks.three_decimal_url)
+
+		// save the current exchange rate to history file
 		SaveCurrentExchangeRate(HistroyFilePath, JSON.stringify(CurrentRate))
-	}).catch(e => {
-		console.log(e)
+
+	}).catch(Exception => {
+		// report error to admins
+		ReportSystemException(Exception, ExceptionWebhook)
 	})
 }
 
-Main()
+cron.schedule('* * * * *', () => {
+	Main()
+	const Now = new Date()
+	console.log(`Exchange rate reporter executed in ${Now.toLocaleDateString()} ${Now.toLocaleTimeString()}`)
+});

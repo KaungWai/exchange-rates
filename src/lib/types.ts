@@ -11,7 +11,7 @@ export type TableStructure = {
     }
 }
 
-export type HistoryStructure = {
+export type RateHistoryStructure = {
     whole: number,
     one_decimal: number,
     two_decimal: number,
@@ -21,8 +21,9 @@ export type HistoryStructure = {
     six_decimal: number
 }
 
-export type WebhookStructure = {
+export type RateWebhookStructure = {
     whole_url: string,
     one_decimal_url: string,
-    two_decimal_url: string
+    two_decimal_url: string,
+    three_decimal_url: string
 }

@@ -1,6 +1,6 @@
 import got from "got"
 import { xml2json } from "xml-js";
-import { TableStructure, HistoryStructure } from "../types"
+import { TableStructure, RateHistoryStructure } from "./types"
 import { readFileSync, writeFileSync } from "fs"
 
 export async function GetWebpageSource(URL: string): Promise<string> {
@@ -8,21 +8,21 @@ export async function GetWebpageSource(URL: string): Promise<string> {
 	return Reponse
 }
 
-export function GetPreviousExchangeRate(Path: string): HistoryStructure {
+export function GetPreviousExchangeRate(Path: string): RateHistoryStructure {
 	const History = readFileSync(Path, {
 		encoding: "utf-8"
 	})
-	return <HistoryStructure>JSON.parse(History)
+	return <RateHistoryStructure>JSON.parse(History)
 }
 
 export function SaveCurrentExchangeRate(Path: string, Data: string): void {
 	writeFileSync(Path, Data)
 }
 
-export function CheckAndReport(PreviousValue: number, CurrentValue: number, URL: string, N: number): void {
+export function CheckAndReport(CurrentExactValue: number, PreviousValue: number, CurrentValue: number, URL: string): void {
 	if (PreviousValue != CurrentValue) {
-		const Report = `${CurrentValue}
-(${CurrentValue > PreviousValue ? "+" : ""}${GetUpToNthDecimal(String(CurrentValue - PreviousValue), N)})`
+		const Report = `${CurrentExactValue}
+(${CurrentValue > PreviousValue ? "+" : ""}${GetUpToNthDecimal(String(CurrentValue - PreviousValue), 6)})`
 		got.post(URL, {
 			json: {
 				content: Report
@@ -50,4 +50,16 @@ export function ConvertTOJSON(XML: string): TableStructure {
 		ignoreDeclaration: true
 	})
 	return <TableStructure>JSON.parse(ResultString)
+}
+
+export function ReportSystemException(Exception: Error, URL: string): void {
+	const Report = `${Exception.name}: ${Exception.message}
+
+${Exception.stack}`
+
+	got.post(URL, {
+		json: {
+			content: Report
+		}
+	})
 }
