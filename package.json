@@ -1,6 +1,6 @@
 {
   "name": "jpy-mmk-rate-reporter",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "watch jpy-mmk exchange rate and report to discord server",
   "main": "index.js",
   "scripts": {
