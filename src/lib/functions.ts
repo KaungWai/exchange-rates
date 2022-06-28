@@ -19,10 +19,10 @@ export function SaveCurrentExchangeRate(Path: string, Data: string): void {
 	writeFileSync(Path, Data)
 }
 
-export function CheckAndReport(CurrentExactValue: number, PreviousValue: number, CurrentValue: number, URL: string): void {
+export function CheckAndReport(PreviousExactValue: number, CurrentExactValue: number, PreviousValue: number, CurrentValue: number, URL: string): void {
 	if (PreviousValue != CurrentValue) {
-		const Report = `${CurrentExactValue}
-(${CurrentValue > PreviousValue ? "+" : ""}${GetUpToNthDecimal(String(CurrentValue - PreviousValue), 6)})`
+		const Report = `1 JPY = ${CurrentExactValue} MMK
+(${CurrentValue > PreviousValue ? "+" : ""}${GetUpToNthDecimal(String(CurrentExactValue - PreviousExactValue), 6)})`
 		got.post(URL, {
 			json: {
 				content: Report

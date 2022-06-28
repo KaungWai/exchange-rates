@@ -1,22 +1,22 @@
 var cron = require('node-cron')
 import dotenv from 'dotenv'
-import { 
-	GetWebURL_ENV, 
-	GetHistoryFilePath_ENV, 
-	GetWebHookWhole_ENV, 
-	GetWebHookOneDecimal_ENV, 
-	GetWebHookTwoDecimal_ENV, 
-	GetWebHookThreeDecimal_ENV, 
-	GetWebHookSystemException_ENV, 
+import {
+	GetWebURL_ENV,
+	GetHistoryFilePath_ENV,
+	GetWebHookWhole_ENV,
+	GetWebHookOneDecimal_ENV,
+	GetWebHookTwoDecimal_ENV,
+	GetWebHookThreeDecimal_ENV,
+	GetWebHookSystemException_ENV,
 	GetCronSchedule_ENV
 } from './lib/env'
-import { 
-	GetWebpageSource, 
-	ConvertTOJSON, 
-	GetPreviousExchangeRate, 
-	GetUpToNthDecimal, 
-	CheckAndReport, 
-	SaveCurrentExchangeRate, 
+import {
+	GetWebpageSource,
+	ConvertTOJSON,
+	GetPreviousExchangeRate,
+	GetUpToNthDecimal,
+	CheckAndReport,
+	SaveCurrentExchangeRate,
 	ReportSystemException
 } from './lib/functions'
 import { RateHistoryStructure, RateWebhookStructure } from "./lib/types"
@@ -86,16 +86,16 @@ function Main() {
 		}
 
 		// reprot the rate change of whole number
-		CheckAndReport(CurrentRate.six_decimal, PreviousRate.whole, CurrentRate.whole, RateWebhooks.whole_url)
+		CheckAndReport(PreviousRate.six_decimal, CurrentRate.six_decimal, PreviousRate.whole, CurrentRate.whole, RateWebhooks.whole_url)
 
 		// report the rate change up to one decimal place
-		CheckAndReport(CurrentRate.six_decimal, PreviousRate.one_decimal, CurrentRate.one_decimal, RateWebhooks.one_decimal_url)
+		CheckAndReport(PreviousRate.six_decimal, CurrentRate.six_decimal, PreviousRate.one_decimal, CurrentRate.one_decimal, RateWebhooks.one_decimal_url)
 
 		// report the rate change up to two decimal places
-		CheckAndReport(CurrentRate.six_decimal, PreviousRate.two_decimal, CurrentRate.two_decimal, RateWebhooks.two_decimal_url)
+		CheckAndReport(PreviousRate.six_decimal, CurrentRate.six_decimal, PreviousRate.two_decimal, CurrentRate.two_decimal, RateWebhooks.two_decimal_url)
 
 		// report the rate change up to three decimal places
-		CheckAndReport(CurrentRate.six_decimal, PreviousRate.three_decimal, CurrentRate.three_decimal, RateWebhooks.three_decimal_url)
+		CheckAndReport(PreviousRate.six_decimal, CurrentRate.six_decimal, PreviousRate.three_decimal, CurrentRate.three_decimal, RateWebhooks.three_decimal_url)
 
 		// save the current exchange rate to history file
 		SaveCurrentExchangeRate(HistroyFilePath, JSON.stringify(CurrentRate))
