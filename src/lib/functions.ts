@@ -53,7 +53,7 @@ export function ConvertTOJSON(XML: string): TableStructure {
 }
 
 export function ReportSystemException(Exception: Error, URL: string): void {
-	const Report = `${Exception.name}: ${Exception.message}
+	const Report = `System Exception has occured.
 
 ${Exception.stack}`
 
